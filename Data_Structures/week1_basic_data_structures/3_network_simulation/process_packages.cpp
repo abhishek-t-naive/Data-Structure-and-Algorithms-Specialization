@@ -31,18 +31,20 @@ public:
         finish_time_()
     {}
 
-		int proc_time;
-		int last_fin_time = 0;
+		int proc_time;																															//Current processing time
+		int last_fin_time = 0;																											//Indicates the time at which last request ends
+
     Response Process(const Request &request) {
 
 			proc_time = request.arrival_time;
+		
 			#ifdef IF_DEBUG
 				std::cout << "Processing time is: "<<proc_time<<"\n";
 				std::cout << "last_fin_time is: "<<last_fin_time<<"\n";
 				std::cout << "Total size of the queue is: "<<size_<<"\n";
 			#endif
 
-			if(finish_time_.empty()){
+			if(finish_time_.empty()){																									//First request is enqueued into the queue
 				finish_time_.push(request.process_time);
 				#ifdef IF_DEBUG
 					std::cout << "First request is being pushed into the queue!\n";
@@ -51,14 +53,14 @@ public:
 				return(Response(0,request.arrival_time));
 			}
 			else {
-				while((proc_time >= finish_time_.front()) && !finish_time_.empty()){			//Popping all the completed requests by now
+				while((proc_time >= finish_time_.front()) && !finish_time_.empty()){		//Popping all the completed requests by now
 					#ifdef IF_DEBUG
 						std::cout << "Finished request popped from the queue!\n";
 					#endif
 					finish_time_.pop();			
 				}
 
-				if(proc_time < last_fin_time){
+				if(proc_time < last_fin_time){																					//Request arrives before the completion of prev req
 					if(finish_time_.size() < size_){
 						#ifdef IF_DEBUG
 							std::cout << "There is space in the queue!\n";
@@ -76,7 +78,7 @@ public:
 						return(Response(1,last_fin_time));
 					}
 				}
-				else if (proc_time >= last_fin_time){
+				else if (proc_time >= last_fin_time){																	//Request arrives after the processor was idle for sometime
 					if(finish_time_.size() < size_){
 						#ifdef IF_DEBUG
 							std::cout << "There is space in the queue!\n";
